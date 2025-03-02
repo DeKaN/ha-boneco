@@ -1,0 +1,27 @@
+{
+  "domain": "boneco",
+  "name": "Boneco",
+  "bluetooth": [
+    {
+      "manufacturer_id": 665,
+      "manufacturer_data_start": [
+        66
+      ]
+    }
+  ],
+  "codeowners": [
+    "@DeKaN"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "bluetooth_adapters"
+  ],
+  "documentation": "https://github.com/DeKaN/ha-boneco",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/DeKaN/ha-boneco/issues",
+  "requirements": [
+    "pyboneco==0.3.5"
+  ],
+  "version": "0.1.0"
+}

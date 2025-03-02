@@ -1,0 +1,6 @@
+__pycache__/
+*.py[oc]
+build/
+dist/
+.venv
+.ruff_cache

@@ -1,0 +1,8 @@
+{
+    "name": "Boneco",
+    "filename": "boneco.zip",
+    "hide_default_branch": true,
+    "homeassistant": "2025.2.0",
+    "render_readme": true,
+    "zip_release": true
+}

@@ -1,0 +1,21 @@
+[project]
+name = "ha-boneco"
+version = "0.1.0"
+description = "A Home Assistant integration to control Boneco devices"
+readme = "README.md"
+authors = [
+    { name = "DeKaN" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "pyboneco==0.3.5",
+]
+
+[project.urls]
+Repository = "https://github.com/DeKaN/ha-boneco.git"
+
+[dependency-groups]
+dev = [
+    "ruff==0.9.7",
+]
+

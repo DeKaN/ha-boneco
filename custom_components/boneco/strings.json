@@ -1,0 +1,93 @@
+{
+  "config": {
+    "flow_title": "{name} ({address})",
+    "step": {
+      "user": {
+        "description": "[%key:component::bluetooth::config::step::user::description%]",
+        "data": {
+          "address": "[%key:common::config_flow::data::device%]"
+        }
+      },
+      "bluetooth_confirm": {
+        "description": "[%key:component::bluetooth::config::step::bluetooth_confirm::description%]"
+      },
+      "pairing_timeout": {
+        "description": "The device did not enter pairing mode. Select Submit to try again.\n\n### Troubleshooting\n1. Check that the device isn't connected to the mobile app.\n2. Unplug the device for 5 seconds, then plug it back in."
+      },
+      "confirm_pairing_timeout": {
+        "description": "The device did not confirm pairing. Select Submit to try pairing again."
+      },
+      "confirm": {
+        "description": ""
+      }
+    },
+    "progress": {
+      "wait_for_pairing_mode": "To complete setup, put this device in pairing mode.\n\n### How to enter pairing mode\n1. Close Boneco mobile apps.\n2. Press and hold the power button on the device for at least 7 seconds. Release when the LED starts to flash blue.",
+      "wait_for_confirm_pairing": "To complete setup, press power button on the device once to confirm pairing."
+    },
+    "error": {
+      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
+      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+      "unknown": "[%key:common::config_flow::error::unknown%]"
+    },
+    "abort": {
+      "no_devices_found": "[%key:common::config_flow::abort::no_devices_found%]",
+      "already_in_progress": "[%key:common::config_flow::abort::already_in_progress%]",
+      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "bluetooth_signal": {
+        "name": "Bluetooth signal"
+      },
+      "reminder_filter_date": {
+        "name": "Next filter replace date"
+      },
+      "reminder_iss_date": {
+        "name": "Next replace iss date"
+      },
+      "reminder_clean_date": {
+        "name": "Next clean date"
+      }
+    },
+    "binary_sensor": {
+      "no_filter": {
+        "name": "No filter"
+      },
+      "no_front_cover": {
+        "name": "No front cover"
+      },
+      "no_water": {
+        "name": "No water"
+      },
+      "fan_error": {
+        "name": "Fan blocked"
+      },
+      "hum_pack_error": {
+        "name": "Drum blocked"
+      }
+    },
+    "fan": {
+      "fan": {
+        "name": "[%key:component::fan::title%]"
+      }
+    },
+    "number": {
+      "min_led_brightness": {
+        "name": "Min LED brightness"
+      },
+      "max_led_brightness": {
+        "name": "Max LED brightness"
+      }
+    },
+    "switch":{
+      "child_lock": {
+        "name": "Child lock"
+      },
+      "history_active": {
+        "name": "History"
+      }
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+    "config": {
+        "abort": {
+            "already_configured": "Device is already configured",
+            "already_in_progress": "Configuration flow is already in progress",
+            "no_devices_found": "No devices found on the network"
+        },
+        "error": {
+            "cannot_connect": "Failed to connect",
+            "invalid_auth": "Invalid authentication",
+            "unknown": "Unexpected error"
+        },
+        "flow_title": "{name} ({address})",
+        "progress": {
+            "wait_for_confirm_pairing": "To complete setup, press power button on the device once to confirm pairing.",
+            "wait_for_pairing_mode": "To complete setup, put this device in pairing mode.\n\n### How to enter pairing mode\n1. Close Boneco mobile apps.\n2. Press and hold the power button on the device for at least 7 seconds. Release when the LED starts to flash blue."
+        },
+        "step": {
+            "bluetooth_confirm": {
+                "description": "Do you want to set up {name}?"
+            },
+            "confirm": {
+                "description": ""
+            },
+            "confirm_pairing_timeout": {
+                "description": "The device did not confirm pairing. Select Submit to try pairing again."
+            },
+            "pairing_timeout": {
+                "description": "The device did not enter pairing mode. Select Submit to try again.\n\n### Troubleshooting\n1. Check that the device isn't connected to the mobile app.\n2. Unplug the device for 5 seconds, then plug it back in."
+            },
+            "user": {
+                "data": {
+                    "address": "Device"
+                },
+                "description": "Choose a device to set up"
+            }
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "fan_error": {
+                "name": "Fan blocked"
+            },
+            "hum_pack_error": {
+                "name": "Drum blocked"
+            },
+            "no_filter": {
+                "name": "No filter"
+            },
+            "no_front_cover": {
+                "name": "No front cover"
+            },
+            "no_water": {
+                "name": "No water"
+            }
+        },
+        "fan": {
+            "fan": {
+                "name": "Fan"
+            }
+        },
+        "number": {
+            "max_led_brightness": {
+                "name": "Max LED brightness"
+            },
+            "min_led_brightness": {
+                "name": "Min LED brightness"
+            }
+        },
+        "sensor": {
+            "bluetooth_signal": {
+                "name": "Bluetooth signal"
+            },
+            "reminder_clean_date": {
+                "name": "Next clean date"
+            },
+            "reminder_filter_date": {
+                "name": "Next filter replace date"
+            },
+            "reminder_iss_date": {
+                "name": "Next replace iss date"
+            }
+        },
+        "switch": {
+            "child_lock": {
+                "name": "Child lock"
+            },
+            "history_active": {
+                "name": "History"
+            }
+        }
+    }
+}
