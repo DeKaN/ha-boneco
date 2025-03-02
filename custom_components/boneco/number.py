@@ -5,7 +5,9 @@ from dataclasses import dataclass
 
 from homeassistant.components.number import NumberEntity, NumberEntityDescription
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.entity_platform import (
+    AddEntitiesCallback as AddConfigEntryEntitiesCallback,
+)
 from pyboneco import MAX_LED_BRIGHTNESS, MIN_LED_BRIGHTNESS, BonecoDeviceState
 
 from .coordinator import BonecoConfigEntry, BonecoDataUpdateCoordinator

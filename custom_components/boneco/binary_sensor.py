@@ -9,7 +9,9 @@ from homeassistant.components.binary_sensor import (
 )
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.entity_platform import (
+    AddEntitiesCallback as AddConfigEntryEntitiesCallback,
+)
 from pyboneco import BonecoDeviceClass
 
 from .const import DEVICES_WITH_FILTER

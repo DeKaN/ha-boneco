@@ -14,7 +14,9 @@ from homeassistant.components.humidifier import (
     HumidifierEntityFeature,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.entity_platform import (
+    AddEntitiesCallback as AddConfigEntryEntitiesCallback,
+)
 from pyboneco import (
     MAX_HUMIDITY,
     MIN_HUMIDITY,
