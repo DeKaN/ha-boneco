@@ -255,7 +255,7 @@ class BonecoConfigFlow(ConfigFlow, domain=DOMAIN):
         confirmed_event = asyncio.Event()
 
         def on_state_update(auth: BonecoAuth) -> None:
-            _LOGGER.warning(
+            _LOGGER.debug(
                 "Got new auth state: current=%s, level=%d",
                 auth.current_state,
                 auth.current_auth_level,
