@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 import math
+from typing import Any
 
 from homeassistant.components.fan import (
     FanEntity,
@@ -55,7 +56,6 @@ class BonecoFan(BonecoEntity, FanEntity):
     """Representation of a Boneco fan."""
 
     entity_description: BonecoFanEntityDescription
-    _attr_supported_features = FanEntityFeature.SET_SPEED
 
     def __init__(
         self,
@@ -69,14 +69,20 @@ class BonecoFan(BonecoEntity, FanEntity):
             f"{coordinator.auth_data.address}-{entity_description.key}"
         )
         self.speed_range = (
-            AIR_FAN_SPEED_RANGE
-            if coordinator.data.state.is_air_fan
-            else OTHER_FAN_SPEED_RANGE
+            AIR_FAN_SPEED_RANGE if self._is_air_fan() else OTHER_FAN_SPEED_RANGE
         )
         self._attr_speed_count = int_states_in_range(self.speed_range)
+        self._attr_supported_features = FanEntityFeature.SET_SPEED
+        if self._is_air_fan():
+            self._attr_supported_features |= (
+                FanEntityFeature.TURN_ON | FanEntityFeature.TURN_OFF
+            )
+            self._attr_name = None
 
     async def async_set_percentage(self, percentage: int) -> None:
         """Set fan speed percentage."""
+        if percentage == 0 and self._is_air_fan():
+            return await self.async_turn_off()
         speed = math.ceil(percentage_to_ranged_value(self.speed_range, percentage))
         state = self.coordinator.data.state
         state.fan_level = speed
@@ -87,3 +93,23 @@ class BonecoFan(BonecoEntity, FanEntity):
         """Return the current speed as a percentage."""
         level = self.entity_description.value_fn(self.coordinator.data)
         return ranged_value_to_percentage(self.speed_range, level)
+
+    @property
+    def is_on(self) -> bool | None:
+        """Return true if device is on (for fan devices only)."""
+        return self.coordinator.data.state.is_enabled
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        """Turn the device on (for fan devices only)."""
+        state = self.coordinator.data.state
+        state.is_enabled = True
+        await self.set_state(state)
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        """Turn the device off (for fan devices only)."""
+        state = self.coordinator.data.state
+        state.is_enabled = False
+        await self.set_state(state)
+
+    def _is_air_fan(self) -> bool:
+        return self.coordinator.data.state.is_air_fan
