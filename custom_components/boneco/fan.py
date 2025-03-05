@@ -99,7 +99,12 @@ class BonecoFan(BonecoEntity, FanEntity):
         """Return true if device is on (for fan devices only)."""
         return self.coordinator.data.state.is_enabled
 
-    async def async_turn_on(self, **kwargs: Any) -> None:
+    async def async_turn_on(
+        self,
+        percentage: int | None = None,
+        preset_mode: str | None = None,
+        **kwargs: Any,
+    ) -> None:
         """Turn the device on (for fan devices only)."""
         state = self.coordinator.data.state
         state.is_enabled = True
