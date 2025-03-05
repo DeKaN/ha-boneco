@@ -38,8 +38,9 @@ def _name_from_discovery(discovery: DiscoveredBoneco) -> str:
 
 def _parse_advertisement_data(
     manufacturer_data: dict[int, bytes],
-) -> BonecoAdvertisingData:
-    return BonecoAdvertisingData(*next(iter(manufacturer_data.items())))
+) -> BonecoAdvertisingData | None:
+    args = next(iter(manufacturer_data.items()), None)
+    return BonecoAdvertisingData(*args) if args is not None else None
 
 
 @dataclass
@@ -69,7 +70,7 @@ class BonecoConfigFlow(ConfigFlow, domain=DOMAIN):
         parsed_adverisement = _parse_advertisement_data(
             discovery_info.advertisement.manufacturer_data
         )
-        if not parsed_adverisement.is_boneco_device:
+        if parsed_adverisement is None or not parsed_adverisement.is_boneco_device:
             _LOGGER.warning("Got not Boneco device: %s", discovery_info.as_dict())
             return self.async_abort(reason="not_supported")
 
@@ -239,7 +240,11 @@ class BonecoConfigFlow(ConfigFlow, domain=DOMAIN):
             discovery_info: bluetooth.BluetoothServiceInfo,
         ) -> bool:
             adv_data = _parse_advertisement_data(discovery_info.manufacturer_data)
-            return adv_data.is_boneco_device and adv_data.pairing_active
+            return (
+                adv_data is not None
+                and adv_data.is_boneco_device
+                and adv_data.pairing_active
+            )
 
         await bluetooth.async_process_advertisements(
             self.hass,
@@ -286,7 +291,7 @@ class BonecoConfigFlow(ConfigFlow, domain=DOMAIN):
             parsed_adverisement = _parse_advertisement_data(
                 discovery_info.advertisement.manufacturer_data
             )
-            if not parsed_adverisement.is_boneco_device:
+            if parsed_adverisement is None or not parsed_adverisement.is_boneco_device:
                 continue
 
             self._discovered_advs[address] = DiscoveredBoneco(
