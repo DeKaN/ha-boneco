@@ -21,7 +21,7 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/DeKaN/ha-boneco/issues",
   "requirements": [
-    "pyboneco==0.3.5"
+    "pyboneco==0.3.6"
   ],
   "version": "0.1.0"
 }
