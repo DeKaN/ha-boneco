@@ -90,6 +90,8 @@ class BonecoButton(BonecoEntity, ButtonEntity):
         await self.update_state(
             lambda state: self.entity_description.set_value_fn(
                 state,
-                datetime.now() + self.entity_description.next_value_shift if not state.has_service_operating_counter else None,
+                datetime.now() + self.entity_description.next_value_shift
+                if not state.has_service_operating_counter
+                else None,
             )
         )
