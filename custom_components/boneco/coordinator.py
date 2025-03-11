@@ -51,12 +51,12 @@ class BonecoDataUpdateCoordinator(DataUpdateCoordinator[BonecoCombinedState]):
     async def set_state(self, new_state: BonecoDeviceState) -> None:
         """Send new state to the device."""
         try:
-            await self._client.connect()
             async with self._lock:
+                await self._client.connect()
                 await self._client.set_state(new_state)
             await self.async_request_refresh()
-        except Exception:
-            _LOGGER.exception("Can't update device state")
+        except Exception as e:
+            _LOGGER.warning("Can't update device state. %s", e, exc_info=True)
         finally:
             _LOGGER.debug("Another operation has started = %s", self._lock.locked())
             if not self._lock.locked():

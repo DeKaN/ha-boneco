@@ -47,6 +47,17 @@
                 "name": "Нет воды"
             }
         },
+        "button": {
+            "reset_reminder_clean_date": {
+                "name": "Устройство почищено"
+            },
+            "reset_reminder_iss_date": {
+                "name": "Стержень заменён"
+            },
+            "reset_reminder_filter_date": {
+                "name": "Фильтр заменён"
+            }
+        },
         "fan": {
             "fan": {
                 "name": "Вентилятор"

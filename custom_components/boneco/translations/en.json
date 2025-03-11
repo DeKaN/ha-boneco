@@ -47,6 +47,17 @@
                 "name": "No water"
             }
         },
+        "button": {
+            "reset_reminder_clean_date": {
+                "name": "Device cleaned"
+            },
+            "reset_reminder_iss_date": {
+                "name": "ISS replaced"
+            },
+            "reset_reminder_filter_date": {
+                "name": "Filter replaced"
+            }
+        },
         "fan": {
             "fan": {
                 "name": "Fan"

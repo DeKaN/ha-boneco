@@ -12,6 +12,9 @@ UPDATE_TIMEOUT = 30
 AIR_FAN_SPEED_RANGE = (1, BonecoDeviceState.AIR_FAN_DEVICE_FAN_MAX_VALUE)
 OTHER_FAN_SPEED_RANGE = (1, BonecoDeviceState.OTHER_DEVICE_FAN_MAX_VALUE)
 DEVICES_WITH_FILTER = [BonecoDeviceClass.SIMPLE_CLIMATE, BonecoDeviceClass.TOP_CLIMATE]
+DEVICE_CLEAN_PERIOD = 14
+ISS_REPLACE_PERIOD = 365
+FILTER_REPLACE_PERIOD = 365
 
 PLATFORMS_BY_TYPE = {
     BonecoDeviceClass.FAN: [
@@ -21,6 +24,7 @@ PLATFORMS_BY_TYPE = {
     ],
     BonecoDeviceClass.HUMIDIFIER: [
         Platform.BINARY_SENSOR,
+        Platform.BUTTON,
         Platform.FAN,
         Platform.HUMIDIFIER,
         Platform.NUMBER,
@@ -29,6 +33,7 @@ PLATFORMS_BY_TYPE = {
     ],
     BonecoDeviceClass.SIMPLE_CLIMATE: [
         Platform.BINARY_SENSOR,
+        Platform.BUTTON,
         Platform.FAN,
         Platform.HUMIDIFIER,
         Platform.NUMBER,
@@ -37,6 +42,7 @@ PLATFORMS_BY_TYPE = {
     ],
     BonecoDeviceClass.TOP_CLIMATE: [
         Platform.BINARY_SENSOR,
+        Platform.BUTTON,
         Platform.FAN,
         Platform.HUMIDIFIER,
         Platform.NUMBER,
