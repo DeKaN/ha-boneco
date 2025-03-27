@@ -87,12 +87,12 @@ class BonecoSwitch(BonecoEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the entity on."""
-        await self.update_state(
+        await self.coordinator.update_state(
             lambda state: self.entity_description.set_value_fn(state, True)
         )
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the entity off."""
-        await self.update_state(
+        await self.coordinator.update_state(
             lambda state: self.entity_description.set_value_fn(state, False)
         )

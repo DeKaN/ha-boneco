@@ -18,6 +18,7 @@ from homeassistant.util.percentage import (
     ranged_value_to_percentage,
 )
 from homeassistant.util.scaling import int_states_in_range
+from pyboneco import BonecoDeviceState
 
 from .const import AIR_FAN_SPEED_RANGE, OTHER_FAN_SPEED_RANGE
 from .coordinator import BonecoConfigEntry, BonecoDataUpdateCoordinator
@@ -83,10 +84,12 @@ class BonecoFan(BonecoEntity, FanEntity):
         """Set fan speed percentage."""
         if percentage == 0 and self._is_air_fan():
             return await self.async_turn_off()
-        speed = math.ceil(percentage_to_ranged_value(self.speed_range, percentage))
-        state = self.coordinator.data.state
-        state.fan_level = speed
-        await self.set_state(state)
+        await self.coordinator.update_state(
+            lambda state: _update_percentage(
+                state,
+                math.ceil(percentage_to_ranged_value(self.speed_range, percentage)),
+            )
+        )
 
     @property
     def percentage(self) -> int | None:
@@ -106,15 +109,19 @@ class BonecoFan(BonecoEntity, FanEntity):
         **kwargs: Any,
     ) -> None:
         """Turn the device on (for fan devices only)."""
-        state = self.coordinator.data.state
-        state.is_enabled = True
-        await self.set_state(state)
+        await self.coordinator.update_state(lambda state: _switch_device(state, True))
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the device off (for fan devices only)."""
-        state = self.coordinator.data.state
-        state.is_enabled = False
-        await self.set_state(state)
+        await self.coordinator.update_state(lambda state: _switch_device(state, False))
 
     def _is_air_fan(self) -> bool:
         return self.coordinator.data.state.is_air_fan
+
+
+def _switch_device(state: BonecoDeviceState, value: bool) -> None:
+    state.is_enabled = value
+
+
+def _update_percentage(state: BonecoDeviceState, speed: int) -> None:
+    state.fan_level = speed

@@ -20,6 +20,7 @@ from homeassistant.helpers.entity_platform import (
 from pyboneco import (
     MAX_HUMIDITY,
     MIN_HUMIDITY,
+    BonecoDeviceState,
     BonecoModeStatus,
     BonecoOperationMode,
     BonecoOperationModeConfig,
@@ -121,27 +122,33 @@ class BonecoHumidifier(BonecoEntity, HumidifierEntity):
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the device on."""
-        state = self.coordinator.data.state
-        state.is_enabled = True
-        await self.set_state(state)
+        await self.coordinator.update_state(lambda state: _switch_device(state, True))
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the device off."""
-        state = self.coordinator.data.state
-        state.is_enabled = False
-        await self.set_state(state)
+        await self.coordinator.update_state(lambda state: _switch_device(state, False))
 
     async def async_set_humidity(self, humidity: int) -> None:
         """Set new target humidity."""
-        state = self.coordinator.data.state
-        state.target_humidity = humidity
-        await self.set_state(state)
+        await self.coordinator.update_state(
+            lambda state: _update_target_humidity(state, humidity)
+        )
 
     async def async_set_mode(self, mode: str) -> None:
         """Set new target preset mode."""
-        state = self.coordinator.data.state
-        state.mode_status = BONECO_MODE_REVERSE_MAPPING[mode]
-        await self.set_state(state)
+        await self.coordinator.update_state(lambda state: _update_mode(state, mode))
+
+
+def _switch_device(state: BonecoDeviceState, value: bool) -> None:
+    state.is_enabled = value
+
+
+def _update_target_humidity(state: BonecoDeviceState, humidity: int) -> None:
+    state.target_humidity = humidity
+
+
+def _update_mode(state: BonecoDeviceState, mode: str) -> None:
+    state.mode_status = BONECO_MODE_REVERSE_MAPPING[mode]
 
 
 def _get_humidifier_operating_modes(

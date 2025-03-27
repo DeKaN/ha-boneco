@@ -27,15 +27,6 @@ class BonecoEntity(CoordinatorEntity[BonecoDataUpdateCoordinator]):
         super().__init__(coordinator, context)
         self._attr_device_info = coordinator.device_info
 
-    async def set_state(self, new_state: BonecoDeviceState) -> None:
-        """Write new state to the device."""
-        await self.coordinator.set_state(new_state)
-
-    async def update_state(self, update_fn: Callable[[BonecoDeviceState], None]):
-        state = self.coordinator.data.state
-        update_fn(state)
-        await self.coordinator.set_state(state)
-
 
 class BonecoEntityDescription(EntityDescription):
     """Generic Boneco entity description."""

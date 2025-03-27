@@ -105,6 +105,6 @@ class BonecoNumber(BonecoEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Set new value."""
-        state = self.coordinator.data.state
-        self.entity_description.set_value_fn(state, value)
-        await self.set_state(state)
+        await self.coordinator.update_state(
+            lambda state: self.entity_description.set_value_fn(state, value)
+        )

@@ -87,7 +87,7 @@ class BonecoButton(BonecoEntity, ButtonEntity):
 
     async def async_press(self) -> None:
         """Press the button."""
-        await self.update_state(
+        await self.coordinator.update_state(
             lambda state: self.entity_description.set_value_fn(
                 state,
                 datetime.now() + self.entity_description.next_value_shift

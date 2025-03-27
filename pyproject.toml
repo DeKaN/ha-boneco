@@ -17,5 +17,6 @@ Repository = "https://github.com/DeKaN/ha-boneco.git"
 [dependency-groups]
 dev = [
     "homeassistant-stubs==2025.3.0",
+    "pre-commit==4.2.0",
     "ruff==0.9.7",
 ]
