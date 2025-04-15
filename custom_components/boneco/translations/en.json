@@ -85,6 +85,17 @@
                 "name": "Next replace iss date"
             }
         },
+        "select": {
+            "operating_mode": {
+                "name": "Operating mode",
+                "state": {
+                    "0": "----",
+                    "1": "Humidifier",
+                    "2": "Purifier",
+                    "3": "Hybrid"
+                }
+            }
+        },
         "switch": {
             "child_lock": {
                 "name": "Child lock"

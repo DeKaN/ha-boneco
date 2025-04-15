@@ -1,6 +1,7 @@
 """Support for Boneco humidifier."""
 
 from dataclasses import dataclass
+import logging
 from typing import Any
 
 from homeassistant.components.humidifier import (
@@ -22,13 +23,14 @@ from pyboneco import (
     MIN_HUMIDITY,
     BonecoDeviceState,
     BonecoModeStatus,
-    BonecoOperationMode,
     BonecoOperationModeConfig,
 )
 
 from .coordinator import BonecoConfigEntry, BonecoDataUpdateCoordinator
 from .entity import BonecoEntity, BonecoEntityDescription
 from .models import BonecoCombinedState
+
+_LOGGER = logging.getLogger(__name__)
 
 BONECO_MODE_MAPPING: dict[BonecoModeStatus, str] = {
     BonecoModeStatus.CUSTOM: MODE_NORMAL,
@@ -90,15 +92,30 @@ class BonecoHumidifier(BonecoEntity, HumidifierEntity):
         self._attr_unique_id = (
             f"{coordinator.auth_data.address}-{entity_description.key}"
         )
-        modes = _get_humidifier_operating_modes(coordinator.data)
+
+    @property
+    def available_modes(self) -> list[str] | None:
+        """Return a list of available modes.
+
+        Requires HumidifierEntityFeature.MODES.
+        """
+        modes = _get_humidifier_operating_modes(self.coordinator.data)
         if modes is not None:
             modes = [
                 BONECO_MODE_MAPPING[mode]
                 for mode, supported in modes.items()
                 if supported
             ]
-            self._attr_supported_features = HumidifierEntityFeature.MODES
-        self._attr_available_modes = modes
+        return modes
+
+    @property
+    def supported_features(self) -> HumidifierEntityFeature:
+        """Return the list of supported features."""
+        return (
+            HumidifierEntityFeature.MODES
+            if self.available_modes is not None
+            else self._attr_supported_features
+        )
 
     @property
     def is_on(self) -> bool | None:
@@ -154,4 +171,7 @@ def _update_mode(state: BonecoDeviceState, mode: str) -> None:
 def _get_humidifier_operating_modes(
     data: BonecoCombinedState,
 ) -> BonecoOperationModeConfig:
-    return data.info.supported_operating_modes[BonecoOperationMode.HUMIDIFIER]
+    operating_mode = data.state.operating_mode
+    modes = data.info.supported_operating_modes[operating_mode]
+    _LOGGER.debug("Found modes '%s' for operating mode %s", modes, operating_mode.name)
+    return modes

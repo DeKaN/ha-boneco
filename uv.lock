@@ -679,7 +679,7 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pyboneco", specifier = "==0.3.8" }]
+requires-dist = [{ name = "pyboneco", specifier = "==0.3.9" }]
 
 [package.metadata.requires-dev]
 dev = [
@@ -1135,16 +1135,16 @@ wheels = [
 
 [[package]]
 name = "pyboneco"
-version = "0.3.8"
+version = "0.3.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bleak" },
     { name = "bleak-retry-connector" },
     { name = "cryptography" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/29/0d/359917e64c421c86fbfc7d2a22bc1d18800b1edc43ca6733c39c97976ecb/pyboneco-0.3.8.tar.gz", hash = "sha256:bffd8b8940833bb6062609e56dd30324c85c10d2f6fdee038e4b6a8a233963b5", size = 25236 }
+sdist = { url = "https://files.pythonhosted.org/packages/88/c0/21b15836b792256e8039c62e48f0d1245c5f2a6bbef0f8eabb356cbe8f45/pyboneco-0.3.9.tar.gz", hash = "sha256:65aa6be049b3af17bcf7ec89d5acb5078dd412fb1b1def59da172b3d6a101cd0", size = 25239 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/75/4a/efa47913ea58a9319a7a1883bd02fb4035e34911d27e1cd08faba2ae71b6/pyboneco-0.3.8-py3-none-any.whl", hash = "sha256:efd6ceb51457ace7f0f756b0e9d72fe2c9228b373a743fc2ff98610ae4095624", size = 13298 },
+    { url = "https://files.pythonhosted.org/packages/65/2b/d15603fbb0f087c3932aa73366152d6597b56886c8910d246ae3c5ddf911/pyboneco-0.3.9-py3-none-any.whl", hash = "sha256:9e831d04494a9347ed8c37d3373a57540e0230bf6aecfc2feb74792ced8e4d15", size = 13298 },
 ]
 
 [[package]]

@@ -102,6 +102,7 @@ class BonecoDataUpdateCoordinator(DataUpdateCoordinator[BonecoCombinedState]):
             self._debounced_refresh.async_schedule_call()
         except Exception as e:
             _LOGGER.warning("Can't update device state. %s", e, exc_info=True)
+            self._debounced_write.async_schedule_call()
         finally:
             _LOGGER.debug("Another operation has started = %s", self._lock.locked())
             if not self._lock.locked():
