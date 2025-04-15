@@ -25,12 +25,14 @@ def _update_operating_mode(state: BonecoDeviceState, value: int) -> None:
     state.operating_mode = BonecoOperationMode(value)
 
 
-SELECTS: tuple[BonecoSelectEntityDescription, ...] = BonecoSelectEntityDescription(
-    key="operating_mode",
-    translation_key="operating_mode",
-    exists_fn=lambda data: _has_several_operating_modes(data),
-    value_fn=lambda data: data.state.operating_mode,
-    set_value_fn=_update_operating_mode,
+SELECTS: tuple[BonecoSelectEntityDescription, ...] = (
+    BonecoSelectEntityDescription(
+        key="operating_mode",
+        translation_key="operating_mode",
+        exists_fn=lambda data: _has_several_operating_modes(data),
+        value_fn=lambda data: data.state.operating_mode,
+        set_value_fn=_update_operating_mode,
+    ),
 )
 
 
