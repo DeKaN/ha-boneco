@@ -17,7 +17,6 @@ These devices require active connection for reading/writing data, so the integra
 
 ## Known limitations
 At this moment some features are not supported:
-- purifier/hybrid mode (and switching modes also)
 - timers
 Additional reading data from device is required after each write due to device logic (it can update several fields after changing something).
 
@@ -30,15 +29,42 @@ Additional reading data from device is required after each write due to device l
 1. Click Install below the found integration.
 1. In the HA UI go to Settings -> Integrations click "+" and search for "Boneco".
 
-### Manual installation
-
-1. Using the tool of choice open the directory (folder) for your HA configuration (where you find `configuration.yaml`).
-1. If you do not have a `custom_components` directory (folder) there, you need to create it.
-1. In the `custom_components` directory (folder) create a new folder called `boneco`.
-1. Download file `boneco.zip` from the [latest release section][latest-release] in this repository.
-1. Extract _all_ files from this archive you downloaded in the directory (folder) `boneco` you created.
-1. Restart Home Assistant
-1. In the HA UI go to Settings -> Integrations click "+" and search for "Boneco".
+## Sample card
+If you want to see when device has any problems you can add it to Lovelace like
+```yaml
+type: vertical-stack
+cards:
+  - type: conditional
+    conditions:
+      - condition: state
+        entity: binary_sensor.w400_has_error
+        state: "off"
+    card:
+      type: humidifier
+      entity: humidifier.w400
+      features:
+        - type: humidifier-toggle
+        - style: icons
+          type: humidifier-modes
+      show_current_as_primary: true
+  - type: conditional
+    conditions:
+      - condition: state
+        entity: binary_sensor.w400_has_error
+        state_not: "off"
+    card:
+      type: entities
+      entities:
+        - entity: binary_sensor.w400_no_water
+          secondary_info: last-changed
+        - entity: binary_sensor.w400_drum_blocked
+          secondary_info: last-changed
+        - entity: binary_sensor.w400_fan_blocked
+          secondary_info: last-changed
+      state_color: true
+      show_header_toggle: false
+```
+where `binary_sensor.w400_has_error` is a helper group for binary sensors, which include all binary sensors provided by integration
 
 <!---->
 [hacs]: https://github.com/hacs/integration
