@@ -47,7 +47,7 @@ BONECO_MODE_REVERSE_MAPPING: dict[str, BonecoModeStatus] = {
 class BonecoHumidifierEntityDescription(
     BonecoEntityDescription, HumidifierEntityDescription
 ):
-    """Describes Boneco fan entity."""
+    """Describes Boneco humidifier entity."""
 
 
 async def async_setup_entry(

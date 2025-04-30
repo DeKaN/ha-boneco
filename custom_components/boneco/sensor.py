@@ -143,7 +143,7 @@ class BonecoRSSISensor(BonecoSensor):
     def native_value(self) -> str | int | None:
         """Return the state of the sensor."""
         if service_info := bluetooth.async_last_service_info(
-            self.hass, self.coordinator.auth_data.address, self.coordinator.connectable
+            self.hass, self.coordinator.auth_data.address
         ):
             return service_info.rssi
         return None

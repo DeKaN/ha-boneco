@@ -54,7 +54,7 @@ async def async_setup_entry(
     entry: BonecoConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Set up Boneco number based on a config entry."""
+    """Set up Boneco switch based on a config entry."""
     coordinator = entry.runtime_data
     async_add_entities(
         BonecoSwitch(coordinator, description)
