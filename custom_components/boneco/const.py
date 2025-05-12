@@ -1,7 +1,11 @@
 """Constants for the Boneco integration."""
 
 from homeassistant.const import Platform
-from pyboneco import BonecoDeviceClass, BonecoDeviceState
+from pyboneco import (
+    BonecoDeviceClass,
+    AIR_FAN_DEVICE_FAN_MAX_VALUE,
+    OTHER_DEVICE_FAN_MAX_VALUE,
+)
 
 DOMAIN = "boneco"
 MANUFACTURER = "Boneco"
@@ -9,8 +13,8 @@ WAIT_FOR_PAIRING_TIMEOUT = 30
 WAIT_FOR_CONFIRM_PAIRING_TIMEOUT = 30
 UPDATE_INTERVAL = 60
 UPDATE_TIMEOUT = 30
-AIR_FAN_SPEED_RANGE = (1, BonecoDeviceState.AIR_FAN_DEVICE_FAN_MAX_VALUE)
-OTHER_FAN_SPEED_RANGE = (1, BonecoDeviceState.OTHER_DEVICE_FAN_MAX_VALUE)
+AIR_FAN_SPEED_RANGE = (1, AIR_FAN_DEVICE_FAN_MAX_VALUE)
+OTHER_FAN_SPEED_RANGE = (1, OTHER_DEVICE_FAN_MAX_VALUE)
 DEVICES_WITH_FILTER = [BonecoDeviceClass.SIMPLE_CLIMATE, BonecoDeviceClass.TOP_CLIMATE]
 DEVICE_CLEAN_PERIOD = 14
 ISS_REPLACE_PERIOD = 365
