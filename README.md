@@ -1,5 +1,8 @@
 # Boneco integration for Home Assistant
 [![GitHub Release][releases-shield]][releases]
+[![Downloads][download-latest-shield]](Downloads)
+[![License][license-shield]](LICENSE)
+[![hacs][hacsbadge]][hacs]
 
 Integration to control [Boneco](https://www.boneco.com) devices via bluetooth.  
 These devices require active connection for reading/writing data, so the integration connects every minute for reading data and then disconnects from your device. 
@@ -23,11 +26,13 @@ Additional reading data from device is required after each write due to device l
 ## Installation
 
 ### Install from HACS
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=DeKaN&repository=ha-boneco&category=Integration)
 
+Or
 1. Have [HACS][hacs] installed, this will allow you to easily manage and track updates.
 1. Search for "Boneco".
 1. Click Install below the found integration.
-1. In the HA UI go to Settings -> Integrations click "+" and search for "Boneco".
+1. Wait for autodiscovery or go to Settings -> Integrations click "+" and search for "Boneco".
 
 ## Sample card
 If you want to see when device has any problems you can add it to Lovelace like
@@ -70,3 +75,7 @@ where `binary_sensor.w400_has_error` is a helper group for binary sensors, which
 [hacs]: https://github.com/hacs/integration
 [releases-shield]: https://img.shields.io/github/v/release/DeKaN/ha-boneco?style=for-the-badge
 [releases]: https://github.com/DeKaN/ha-boneco/releases
+[hacs]: https://github.com/hacs/integration
+[hacsbadge]: https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/DeKaN/ha-boneco.svg?style=for-the-badge
+[download-latest-shield]: https://img.shields.io/github/downloads/DeKaN/ha-boneco/latest/total?style=for-the-badge
