@@ -8,7 +8,7 @@ authors = [
 ]
 requires-python = ">=3.13"
 dependencies = [
-    "pyboneco==0.4.0",
+    "pyboneco==0.4.1",
 ]
 
 [project.urls]
@@ -16,7 +16,7 @@ Repository = "https://github.com/DeKaN/ha-boneco.git"
 
 [dependency-groups]
 dev = [
-    "homeassistant-stubs==2025.3.0",
-    "pre-commit==4.2.0",
-    "ruff==0.9.7",
+    "homeassistant-stubs>=2025.3.0",
+    "pre-commit>=4.3.0",
+    "ruff>=0.14.0",
 ]
