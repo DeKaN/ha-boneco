@@ -33,7 +33,7 @@ def _name_from_discovery(discovery: DiscoveredBoneco) -> str:
     """Get the name from a discovery."""
     results = discovery.device.address.replace("-", ":").split(":")
     short_address = f"{results[-2].upper()}{results[-1].upper()}"[-4:]
-    return f"{discovery.name} {short_address}"
+    return f"{discovery.device.name} {short_address}"
 
 
 def _parse_advertisement_data(
