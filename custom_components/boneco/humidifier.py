@@ -65,8 +65,9 @@ async def async_setup_entry(
                     key="humidifier",
                     translation_key="humidifier",
                     name=None,
-                    exists_fn=lambda data: _get_humidifier_operating_modes(data)
-                    is not None,
+                    exists_fn=lambda data: (
+                        _get_humidifier_operating_modes(data) is not None
+                    ),
                 ),
             ),
         ]

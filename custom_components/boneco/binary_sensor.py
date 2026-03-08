@@ -65,8 +65,9 @@ BINARY_SENSORS: tuple[BonecoBinarySensorEntityDescription, ...] = (
         translation_key="no_front_cover",
         device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC,
-        exists_fn=lambda data: data.info.device.device_class
-        == BonecoDeviceClass.TOP_CLIMATE,
+        exists_fn=lambda data: (
+            data.info.device.device_class == BonecoDeviceClass.TOP_CLIMATE
+        ),
         value_fn=lambda data: data.info.front_cover_error,
     ),
     BonecoBinarySensorEntityDescription(
@@ -74,8 +75,9 @@ BINARY_SENSORS: tuple[BonecoBinarySensorEntityDescription, ...] = (
         translation_key="change_water",
         device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC,
-        exists_fn=lambda data: data.info.device.device_class
-        == BonecoDeviceClass.TOP_CLIMATE,
+        exists_fn=lambda data: (
+            data.info.device.device_class == BonecoDeviceClass.TOP_CLIMATE
+        ),
         value_fn=lambda data: data.state.is_change_water_needed,
     ),
 )

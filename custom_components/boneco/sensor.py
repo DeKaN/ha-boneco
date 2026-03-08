@@ -21,6 +21,7 @@ from homeassistant.helpers.entity_platform import (
 )
 from homeassistant.helpers.typing import StateType
 
+from .const import DEVICE_CLEAN_PERIOD, FILTER_REPLACE_PERIOD, ISS_REPLACE_PERIOD
 from .coordinator import BonecoConfigEntry, BonecoDataUpdateCoordinator
 from .entity import BonecoEntity, BonecoValueEntityDescription
 
@@ -64,21 +65,23 @@ SENSORS: tuple[BonecoSensorEntityDescription, ...] = (
         translation_key="reminder_filter_date",
         device_class=SensorDeviceClass.DATE,
         exists_fn=lambda data: data.state.has_reminder_filter_date,
-        value_fn=lambda data: data.state.get_reminder_filter_date(),
+        value_fn=lambda data: data.state.get_reminder_filter_date(
+            FILTER_REPLACE_PERIOD
+        ),
     ),
     BonecoSensorEntityDescription(
         key="reminder_iss_date",
         translation_key="reminder_iss_date",
         device_class=SensorDeviceClass.DATE,
         exists_fn=lambda data: data.state.has_reminder_iss_date,
-        value_fn=lambda data: data.state.get_reminder_iss_date(),
+        value_fn=lambda data: data.state.get_reminder_iss_date(ISS_REPLACE_PERIOD),
     ),
     BonecoSensorEntityDescription(
         key="reminder_clean_date",
         translation_key="reminder_clean_date",
         device_class=SensorDeviceClass.DATE,
         exists_fn=lambda data: data.state.has_reminder_clean_date,
-        value_fn=lambda data: data.state.get_reminder_clean_date(),
+        value_fn=lambda data: data.state.get_reminder_clean_date(DEVICE_CLEAN_PERIOD),
     ),
 )
 

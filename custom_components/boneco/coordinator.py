@@ -2,6 +2,7 @@
 
 import asyncio
 from collections.abc import Callable
+import dataclasses
 from datetime import timedelta
 import logging
 
@@ -14,11 +15,16 @@ from homeassistant.helpers.debounce import Debouncer
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
     UpdateFailed,
-    REQUEST_REFRESH_DEFAULT_COOLDOWN,
 )
 from pyboneco import BonecoAuth, BonecoClient, BonecoDeviceClass, BonecoDeviceState
 
-from .const import DOMAIN, MANUFACTURER, UPDATE_INTERVAL, UPDATE_TIMEOUT
+from .const import (
+    DOMAIN,
+    MANUFACTURER,
+    REQUEST_WRITE_DEFAULT_COOLDOWN,
+    UPDATE_INTERVAL,
+    UPDATE_TIMEOUT,
+)
 from .models import BonecoCombinedState
 
 _LOGGER = logging.getLogger(__name__)
@@ -30,8 +36,8 @@ class BonecoDataUpdateCoordinator(DataUpdateCoordinator[BonecoCombinedState]):
     """Boneco device update coordinator."""
 
     _lock: asyncio.Lock = asyncio.Lock()
-    _pending_state: BonecoDeviceState = None
-    device_info: dr.DeviceInfo = None
+    _pending_state: BonecoDeviceState | None = None
+    device_info: dr.DeviceInfo | None = None
 
     def __init__(
         self,
@@ -56,7 +62,7 @@ class BonecoDataUpdateCoordinator(DataUpdateCoordinator[BonecoCombinedState]):
         self._debounced_write: Debouncer = Debouncer(
             hass,
             logger=_LOGGER,
-            cooldown=REQUEST_REFRESH_DEFAULT_COOLDOWN,
+            cooldown=REQUEST_WRITE_DEFAULT_COOLDOWN,
             immediate=False,
             function=self._async_set_state,
             background=True,
@@ -70,6 +76,11 @@ class BonecoDataUpdateCoordinator(DataUpdateCoordinator[BonecoCombinedState]):
             vars(self._last_state()),
         )
         self._pending_state = new_state
+        self.data = dataclasses.replace(
+            self.data,
+            state=new_state,
+        )
+        self.async_update_listeners()
         self._debounced_write.async_schedule_call()
 
     async def update_state(
@@ -94,6 +105,8 @@ class BonecoDataUpdateCoordinator(DataUpdateCoordinator[BonecoCombinedState]):
 
     async def _async_set_state(self):
         try:
+            if self._pending_state is None:
+                return
             _LOGGER.debug("Sending new state = %s", vars(self._pending_state))
             async with self._lock:
                 await self._client.connect()
@@ -128,11 +141,11 @@ class BonecoDataUpdateCoordinator(DataUpdateCoordinator[BonecoCombinedState]):
                         manufacturer=MANUFACTURER,
                         model=self.auth_data.name,
                         name=name,
-                        serial_number=info.serial_number,
+                        serial_number=str(info.serial_number),
                         sw_version=info.software_version,
                         hw_version=info.hardware_version,
                     )
-                return BonecoCombinedState(name, info, state)
+                return BonecoCombinedState(name=name, info=info, state=state)
         except Exception as err:
             raise UpdateFailed(f"Unable to fetch data: {err}") from err
         finally:
