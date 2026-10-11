@@ -83,6 +83,10 @@
             }
         },
         "sensor": {
+            "air_quality_level": {"name": "Качество воздуха (1–5)"},
+            "particle_raw": {"name": "Датчик частиц: исходное значение"},
+            "connection_count": {"name": "Число подключений"},
+            "notification_count": {"name": "Число уведомлений"},
             "bluetooth_signal": {
                 "name": "Сигнал Bluetooth"
             },

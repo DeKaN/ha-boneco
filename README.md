@@ -5,7 +5,9 @@
 [![hacs][hacsbadge]][hacs]
 
 Integration to control [Boneco](https://www.boneco.com) devices via bluetooth.  
-These devices require active connection for reading/writing data, so the integration connects every minute for reading data and then disconnects from your device. 
+The integration keeps a Bluetooth connection open and receives state and sensor notifications. It reconnects and authorizes again after a disconnect, and checks connection health every five minutes. Commands use a fresh state read followed by a write and readback.
+
+Devices with a particle sensor expose an air quality level from 1 to 5 and a separate raw reading. The existing `pm25` entity keeps its identifier, but no longer reports a mass concentration unit. Connection and notification counters are available for diagnosing interrupted updates.
 
 ## Supported models
 - H300/H300 CN
@@ -19,6 +21,8 @@ These devices require active connection for reading/writing data, so the integra
 - F235
 
 ## Known limitations
+Each device needs an available Bluetooth connection slot. Disable its Home Assistant entry before connecting another controller to the same device.
+
 At this moment some features are not supported:
 - timers
 Additional reading data from device is required after each write due to device logic (it can update several fields after changing something).

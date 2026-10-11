@@ -1,6 +1,7 @@
 """Support for Boneco sensors."""
 
 from dataclasses import dataclass
+from datetime import datetime
 
 from homeassistant.components import bluetooth
 from homeassistant.components.sensor import (
@@ -10,7 +11,6 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import (
-    CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
     SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
     EntityCategory,
     UnitOfTemperature,
@@ -41,20 +41,29 @@ SENSORS: tuple[BonecoSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         state_class=SensorStateClass.MEASUREMENT,
         device_class=SensorDeviceClass.TEMPERATURE,
-        exists_fn=lambda data: data.info.temperature,
+        exists_fn=lambda data: data.info.temperature is not None,
         value_fn=lambda data: data.info.temperature,
     ),
     BonecoSensorEntityDescription(
         key="pm25",
-        native_unit_of_measurement=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
-        state_class=SensorStateClass.MEASUREMENT,
-        device_class=SensorDeviceClass.PM25,
+        # Keep the unique ID so existing dashboards/automations retain the entity.
+        # This is an ordinal air quality level, not a PM2.5 concentration.
+        translation_key="air_quality_level",
+        icon="mdi:air-filter",
         exists_fn=lambda data: data.info.has_particle_sensor,
         value_fn=lambda data: data.info.particle_value,
     ),
     BonecoSensorEntityDescription(
+        key="particle_raw",
+        translation_key="particle_raw",
+        icon="mdi:blur",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        exists_fn=lambda data: data.info.has_particle_sensor,
+        value_fn=lambda data: data.info.particle_raw,
+    ),
+    BonecoSensorEntityDescription(
         key="voc",
-        native_unit_of_measurement=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+        native_unit_of_measurement="µg/m³",
         state_class=SensorStateClass.MEASUREMENT,
         device_class=SensorDeviceClass.VOLATILE_ORGANIC_COMPOUNDS,
         exists_fn=lambda data: data.info.has_particle_sensor,
@@ -113,6 +122,19 @@ async def async_setup_entry(
             ),
         )
     )
+    for key in ("connection_count", "notification_count"):
+        entities.append(
+            BonecoConnectionSensor(
+                coordinator,
+                BonecoSensorEntityDescription(
+                    key=key,
+                    translation_key=key,
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                    icon="mdi:bluetooth-connect",
+                    value_fn=lambda _: None,
+                ),
+            )
+        )
     async_add_entities(entities)
 
 
@@ -136,7 +158,14 @@ class BonecoSensor(BonecoEntity, SensorEntity):
     @property
     def native_value(self) -> str | int | None:
         """Return the state of the sensor."""
-        return self.entity_description.value_fn(self.coordinator.data)
+        value = self.entity_description.value_fn(self.coordinator.data)
+        # DATE entities must not change with every packet's current second.
+        if (
+            self.entity_description.device_class == SensorDeviceClass.DATE
+            and isinstance(value, datetime)
+        ):
+            return value.date()
+        return value
 
 
 class BonecoRSSISensor(BonecoSensor):
@@ -150,3 +179,15 @@ class BonecoRSSISensor(BonecoSensor):
         ):
             return service_info.rssi
         return None
+
+
+class BonecoConnectionSensor(BonecoSensor):
+    @property
+    def available(self) -> bool:
+        return True
+
+    @property
+    def native_value(self) -> int:
+        if self.entity_description.key == "connection_count":
+            return self.coordinator.connections
+        return self.coordinator.notifications

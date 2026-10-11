@@ -30,3 +30,6 @@ jobs:
 
         - name: "Format"
           run: uv run ruff format . --check
+
+        - name: "Regression tests"
+          run: uv run pytest -q

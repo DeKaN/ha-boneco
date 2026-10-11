@@ -54,11 +54,14 @@ class BonecoConfigFlow(ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
     _discovered: DiscoveredBoneco = None
-    _discovered_advs: dict[str, DiscoveredBoneco] = {}
     _auth_data: BonecoAuth = None
     _client: BonecoClient = None
     _pairing_task: asyncio.Task = None
     _confirm_task: asyncio.Task = None
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._discovered_advs: dict[str, DiscoveredBoneco] = {}
 
     async def async_step_bluetooth(
         self, discovery_info: bluetooth.BluetoothServiceInfoBleak
@@ -161,8 +164,8 @@ class BonecoConfigFlow(ConfigFlow, domain=DOMAIN):
         try:
             await self._confirm_task
             _LOGGER.debug("Confirm pairing task completed")
-        except TimeoutError:
-            _LOGGER.debug("Timeout for confirm pairing task")
+        except (TimeoutError, RuntimeError):
+            _LOGGER.debug("Pairing confirmation failed or timed out", exc_info=True)
             return self.async_show_progress_done(next_step_id="confirm_pairing_timeout")
         finally:
             self._confirm_task = None
@@ -189,7 +192,10 @@ class BonecoConfigFlow(ConfigFlow, domain=DOMAIN):
         title = data["name"]
         if not data["key"]:
             _LOGGER.debug("Key not found for device %s", title)
-            self.async_abort("invalid_auth")
+            return self.async_abort(reason="invalid_auth")
+
+        if title not in SUPPORTED_DEVICE_CLASSES_BY_MODEL:
+            return self.async_abort(reason="not_supported")
 
         await self.async_set_unique_id(
             format_mac(self._auth_data.address), raise_on_progress=False

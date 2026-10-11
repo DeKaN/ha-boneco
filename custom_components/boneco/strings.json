@@ -33,6 +33,10 @@
   },
   "entity": {
     "sensor": {
+      "air_quality_level": {"name": "Air quality (1-5)"},
+      "particle_raw": {"name": "Particle sensor raw reading"},
+      "connection_count": {"name": "Connection count"},
+      "notification_count": {"name": "Notification count"},
       "bluetooth_signal": {
         "name": "Bluetooth signal"
       },
