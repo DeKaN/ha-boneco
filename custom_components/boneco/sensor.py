@@ -13,6 +13,7 @@ from homeassistant.components.sensor import (
 from homeassistant.const import (
     SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
     EntityCategory,
+    UnitOfDensity,
     UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant
@@ -63,7 +64,7 @@ SENSORS: tuple[BonecoSensorEntityDescription, ...] = (
     ),
     BonecoSensorEntityDescription(
         key="voc",
-        native_unit_of_measurement="µg/m³",
+        native_unit_of_measurement=UnitOfDensity.MICROGRAMS_PER_CUBIC_METER,
         state_class=SensorStateClass.MEASUREMENT,
         device_class=SensorDeviceClass.VOLATILE_ORGANIC_COMPOUNDS,
         exists_fn=lambda data: data.info.has_particle_sensor,
@@ -122,7 +123,10 @@ async def async_setup_entry(
             ),
         )
     )
-    for key in ("connection_count", "notification_count"):
+    for key, value_fn in (
+        ("connection_count", lambda _: coordinator.connections),
+        ("notification_count", lambda _: coordinator.notifications),
+    ):
         entities.append(
             BonecoConnectionSensor(
                 coordinator,
@@ -131,7 +135,7 @@ async def async_setup_entry(
                     translation_key=key,
                     entity_category=EntityCategory.DIAGNOSTIC,
                     icon="mdi:bluetooth-connect",
-                    value_fn=lambda _: None,
+                    value_fn=value_fn,
                 ),
             )
         )
@@ -185,9 +189,3 @@ class BonecoConnectionSensor(BonecoSensor):
     @property
     def available(self) -> bool:
         return True
-
-    @property
-    def native_value(self) -> int:
-        if self.entity_description.key == "connection_count":
-            return self.coordinator.connections
-        return self.coordinator.notifications

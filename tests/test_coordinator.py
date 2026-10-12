@@ -5,7 +5,7 @@ from pyboneco.constants import CHARACTERISTIC_DEVICE_INFO, CHARACTERISTIC_DEVICE
 from test_sessions import INFO, STATE, transport
 
 
-def coordinator_for(integration, monkeypatch, entry_factory):
+def coordinator_for(integration, monkeypatch, entry_factory, *, persistent=True):
     session, clients, _, _, _ = transport(integration, monkeypatch)
     mod = integration["boneco"].coordinator
     auth = SimpleNamespace(
@@ -15,8 +15,12 @@ def coordinator_for(integration, monkeypatch, entry_factory):
         loop=asyncio.get_running_loop(),
         device=SimpleNamespace(address=auth.address, name="H700"),
     )
-    coordinator = mod.BonecoDataUpdateCoordinator(hass, entry_factory(), auth, 3)
+    entry = entry_factory()
+    if persistent:
+        entry.options = {"connection_mode": "persistent"}
+    coordinator = mod.BonecoDataUpdateCoordinator(hass, entry, auth, 3)
     coordinator._session = session
+    session._persistent = persistent
     session._on_packet = coordinator._queue_packet
     session._on_disconnect = coordinator._disconnected
     return coordinator, clients, mod

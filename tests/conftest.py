@@ -8,6 +8,7 @@ from enum import Enum
 from pathlib import Path
 
 import pytest
+import voluptuous as vol
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -44,6 +45,7 @@ class DataCoordinator:
         self.hass = hass
         self.config_entry = config_entry
         self.update_method = update_method
+        self.update_interval = kwargs.get("update_interval")
         self.data = None
         self.last_update_success = True
         self.updates = 0
@@ -121,10 +123,27 @@ module(
     ConfigEntry=DataCoordinator,
     ConfigEntryState=ConfigEntryState,
     ConfigFlow=ConfigFlow,
+    OptionsFlow=ConfigFlow,
     ConfigFlowResult=dict,
 )
 module("homeassistant.exceptions", ConfigEntryNotReady=RuntimeError)
 module("homeassistant.helpers")
+
+
+class SelectSelector:
+    def __init__(self, config):
+        self.config = config
+
+    def __call__(self, value):
+        return vol.In(self.config["options"])(value)
+
+
+module(
+    "homeassistant.helpers.selector",
+    SelectSelector=SelectSelector,
+    SelectSelectorConfig=dict,
+    SelectSelectorMode=types.SimpleNamespace(DROPDOWN="dropdown"),
+)
 module(
     "homeassistant.helpers.device_registry",
     DeviceInfo=dict,
@@ -166,6 +185,7 @@ class Entry:
         self.title = "H700"
         self.state = ConfigEntryState.NOT_LOADED
         self.data = {"address": address, "password": "01" * 16, "sensor_type": 3}
+        self.options = {}
 
     def async_create_background_task(self, hass, coro, **kwargs):
         return asyncio.create_task(coro)

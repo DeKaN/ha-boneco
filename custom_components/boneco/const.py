@@ -8,6 +8,11 @@ from pyboneco import (
 )
 
 DOMAIN = "boneco"
+CONF_CONNECTION_MODE = "connection_mode"
+CONNECTION_MODE_POLLING = "polling"
+CONNECTION_MODE_PERSISTENT = "persistent"
+PACKET_INFO = "info"
+PACKET_STATE = "state"
 MANUFACTURER = "Boneco"
 WAIT_FOR_PAIRING_TIMEOUT = 60
 WAIT_FOR_CONFIRM_PAIRING_TIMEOUT = 60

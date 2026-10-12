@@ -11,11 +11,21 @@ from bleak.backends.device import BLEDevice
 import voluptuous as vol
 
 from homeassistant.components import bluetooth
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlow,
+)
 from homeassistant.const import CONF_ADDRESS, CONF_PASSWORD, CONF_SENSOR_TYPE
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import AbortFlow
 from homeassistant.helpers.device_registry import format_mac
+from homeassistant.helpers.selector import (
+    SelectSelector,
+    SelectSelectorConfig,
+    SelectSelectorMode,
+)
 from pyboneco import (
     SUPPORTED_DEVICE_CLASSES_BY_MODEL,
     BonecoAdvertisingData,
@@ -24,7 +34,14 @@ from pyboneco import (
     BonecoClient,
 )
 
-from .const import DOMAIN, WAIT_FOR_CONFIRM_PAIRING_TIMEOUT, WAIT_FOR_PAIRING_TIMEOUT
+from .const import (
+    CONF_CONNECTION_MODE,
+    CONNECTION_MODE_PERSISTENT,
+    CONNECTION_MODE_POLLING,
+    DOMAIN,
+    WAIT_FOR_CONFIRM_PAIRING_TIMEOUT,
+    WAIT_FOR_PAIRING_TIMEOUT,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -53,6 +70,7 @@ class BonecoConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Boneco."""
 
     VERSION = 1
+
     _discovered: DiscoveredBoneco = None
     _auth_data: BonecoAuth = None
     _client: BonecoClient = None
@@ -62,6 +80,11 @@ class BonecoConfigFlow(ConfigFlow, domain=DOMAIN):
     def __init__(self) -> None:
         super().__init__()
         self._discovered_advs: dict[str, DiscoveredBoneco] = {}
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> BonecoOptionsFlow:
+        return BonecoOptionsFlow()
 
     async def async_step_bluetooth(
         self, discovery_info: bluetooth.BluetoothServiceInfoBleak
@@ -320,3 +343,37 @@ class BonecoConfigFlow(ConfigFlow, domain=DOMAIN):
 
         if not self._discovered_advs:
             raise AbortFlow("no_devices_found")
+
+
+class BonecoOptionsFlow(OptionsFlow):
+    """Choose the connection mode independently for each device."""
+
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        if user_input is not None:
+            return self.async_create_entry(
+                title="", data={**self.config_entry.options, **user_input}
+            )
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_CONNECTION_MODE,
+                        default=self.config_entry.options.get(
+                            CONF_CONNECTION_MODE, CONNECTION_MODE_POLLING
+                        ),
+                    ): SelectSelector(
+                        SelectSelectorConfig(
+                            options=[
+                                CONNECTION_MODE_POLLING,
+                                CONNECTION_MODE_PERSISTENT,
+                            ],
+                            mode=SelectSelectorMode.DROPDOWN,
+                            translation_key=CONF_CONNECTION_MODE,
+                        )
+                    )
+                }
+            ),
+        )

@@ -1,4 +1,4 @@
-"""Serialized persistent GATT session with bounded recovery and stale callbacks."""
+"""Serialized GATT operations with optional persistent notification sessions."""
 
 import asyncio
 import logging
@@ -15,7 +15,7 @@ from pyboneco.constants import (
     SUPPORTED_DEVICE_CLASSES_BY_MODEL,
 )
 
-from .const import DISCONNECT_TIMEOUT, UPDATE_TIMEOUT
+from .const import DISCONNECT_TIMEOUT, PACKET_INFO, PACKET_STATE, UPDATE_TIMEOUT
 
 _LOGGER = logging.getLogger(__name__)
 NOTIFICATION_SILENCE_TIMEOUT = 600
@@ -30,11 +30,13 @@ class PersistentSession:
         *,
         on_packet: Callable,
         on_disconnect: Callable,
+        persistent: bool = True,
     ):
         self._device_provider = device_provider
         self._key = key
         self._on_packet = on_packet
         self._on_disconnect = on_disconnect
+        self._persistent = persistent
         self._lock = asyncio.Lock()
         self._generation = 0
         self._client = None
@@ -75,7 +77,7 @@ class PersistentSession:
             _LOGGER.warning("Ignoring truncated Boneco %s notification", kind)
             return
         try:
-            if kind == "info":
+            if kind == PACKET_INFO:
                 info = BonecoDeviceInfo(payload)
                 if info.device_type != self.model_name:
                     raise ValueError("notification identifies a different model")
@@ -134,15 +136,16 @@ class PersistentSession:
         if info.device_type not in SUPPORTED_DEVICE_CLASSES_BY_MODEL:
             raise RuntimeError("Unsupported Boneco model in DeviceInfo")
         self.model_name = auth.model_name = info.device_type
-        await self._subscribe(client, generation)
+        if self._persistent:
+            await self._subscribe(client, generation)
         if generation != self._generation or not self.connected:
             raise RuntimeError("Boneco disconnected during session setup")
         self.connections += 1
 
     async def _subscribe(self, client, generation, *, restart=False):
         for kind, characteristic in (
-            ("info", CHARACTERISTIC_DEVICE_INFO),
-            ("state", CHARACTERISTIC_DEVICE_STATE),
+            (PACKET_INFO, CHARACTERISTIC_DEVICE_INFO),
+            (PACKET_STATE, CHARACTERISTIC_DEVICE_STATE),
         ):
             if restart:
                 await client._client.stop_notify(characteristic)
@@ -183,8 +186,12 @@ class PersistentSession:
                     await self._drop_locked()
                     raise
                 finally:
-                    self._active_operation = None
-                    self._operation_done.set_result(None)
+                    try:
+                        if not self._persistent:
+                            await self._drop_locked()
+                    finally:
+                        self._active_operation = None
+                        self._operation_done.set_result(None)
 
     def _newer_packet(self, kind, since, fallback):
         """Keep a notification arriving during/after a GATT read of that field."""
@@ -192,7 +199,7 @@ class PersistentSession:
         if serial <= since:
             return fallback
         try:
-            if kind == "info":
+            if kind == PACKET_INFO:
                 return BonecoDeviceInfo(payload)
             return BonecoDeviceState(self._client._auth_data.name, payload)
         except (IndexError, KeyError, ValueError) as err:
@@ -202,7 +209,7 @@ class PersistentSession:
     async def _read_state(self, client):
         since = self.notifications
         state = await client.get_state()
-        return self._newer_packet("state", since, state)
+        return self._newer_packet(PACKET_STATE, since, state)
 
     async def read(self):
         async def operation(client):
@@ -218,7 +225,7 @@ class PersistentSession:
             info_since = self.notifications
             info = await client.get_device_info()
             state = await self._read_state(client)
-            info = self._newer_packet("info", info_since, info)
+            info = self._newer_packet(PACKET_INFO, info_since, info)
             return name, info, state
 
         return await self._run(operation)

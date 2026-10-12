@@ -29,6 +29,25 @@
             }
         }
     },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Connection mode",
+                "description": "Polling releases the Bluetooth connection after each read and write. Persistent mode may provide more stable operation, receives notifications, and reserves one adapter connection slot. Other devices or controllers, including the BONECO app, cannot connect to the same device while this connection is open. Changing the mode reloads only this device.",
+                "data": {
+                    "connection_mode": "Connection mode"
+                }
+            }
+        }
+    },
+    "selector": {
+        "connection_mode": {
+            "options": {
+                "polling": "Periodic polling (default)",
+                "persistent": "Persistent connection"
+            }
+        }
+    },
     "entity": {
         "binary_sensor": {
             "fan_error": {

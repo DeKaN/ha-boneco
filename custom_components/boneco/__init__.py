@@ -1,4 +1,4 @@
-"""Set up Boneco push and retain device ownership until cleanup has finished."""
+"""Set up Boneco and retain device ownership until cleanup has finished."""
 
 from __future__ import annotations
 

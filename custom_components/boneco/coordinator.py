@@ -1,10 +1,11 @@
-"""Coordinate notification updates, with an independent watchdog."""
+"""Coordinate periodic polls or notifications with an independent watchdog."""
 
 import asyncio
 import copy
 import dataclasses
 import logging
 from collections.abc import Callable
+from datetime import timedelta
 
 from homeassistant.components import bluetooth
 from homeassistant.config_entries import ConfigEntry
@@ -13,7 +14,17 @@ from homeassistant.helpers.debounce import Debouncer
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from pyboneco import BonecoDeviceInfo, BonecoDeviceState
 
-from .const import DOMAIN, MANUFACTURER, REQUEST_WRITE_DEFAULT_COOLDOWN
+from .const import (
+    CONF_CONNECTION_MODE,
+    CONNECTION_MODE_PERSISTENT,
+    CONNECTION_MODE_POLLING,
+    DOMAIN,
+    MANUFACTURER,
+    PACKET_INFO,
+    PACKET_STATE,
+    REQUEST_WRITE_DEFAULT_COOLDOWN,
+    UPDATE_INTERVAL,
+)
 from .models import BonecoCombinedState
 from .session import PersistentSession
 
@@ -32,6 +43,10 @@ class PendingUpdate:
 
 class BonecoDataUpdateCoordinator(DataUpdateCoordinator[BonecoCombinedState]):
     def __init__(self, hass, config_entry, boneco_auth, device_class):
+        self._persistent = (
+            config_entry.options.get(CONF_CONNECTION_MODE, CONNECTION_MODE_POLLING)
+            == CONNECTION_MODE_PERSISTENT
+        )
         super().__init__(
             hass,
             logger=_LOGGER,
@@ -39,7 +54,9 @@ class BonecoDataUpdateCoordinator(DataUpdateCoordinator[BonecoCombinedState]):
             name=DOMAIN,
             update_method=self._async_fetch_state,
             # Push uses a separate timer: incoming packets must not postpone checks.
-            update_interval=None,
+            update_interval=None
+            if self._persistent
+            else timedelta(seconds=UPDATE_INTERVAL),
             always_update=True,
         )
         self.auth_data = boneco_auth
@@ -66,6 +83,7 @@ class BonecoDataUpdateCoordinator(DataUpdateCoordinator[BonecoCombinedState]):
             boneco_auth.save()["key"],
             on_packet=self._queue_packet,
             on_disconnect=self._disconnected,
+            persistent=self._persistent,
         )
         self._debounced_write = Debouncer(
             hass,
@@ -117,7 +135,7 @@ class BonecoDataUpdateCoordinator(DataUpdateCoordinator[BonecoCombinedState]):
         return self._pending_state or state
 
     def _queue_packet(self, kind, packet):
-        if self._stopped:
+        if self._stopped or not self._persistent:
             return
         self._packets[kind] = packet
         if self._packet_handle is None:
@@ -140,10 +158,10 @@ class BonecoDataUpdateCoordinator(DataUpdateCoordinator[BonecoCombinedState]):
             if packet == self._last_packets.get(kind):
                 continue
             try:
-                if kind == "info":
+                if kind == PACKET_INFO:
                     data = dataclasses.replace(data, info=BonecoDeviceInfo(packet))
                     changed = True
-                elif kind == "state":
+                elif kind == PACKET_STATE:
                     data = dataclasses.replace(
                         data,
                         state=self._merge_pending(
@@ -175,7 +193,8 @@ class BonecoDataUpdateCoordinator(DataUpdateCoordinator[BonecoCombinedState]):
 
     def _schedule_retry(self):
         if (
-            self._stopped
+            not self._persistent
+            or self._stopped
             or not self._started
             or self._retry_handle is not None
             or (self._retry_task is not None and not self._retry_task.done())
@@ -202,7 +221,7 @@ class BonecoDataUpdateCoordinator(DataUpdateCoordinator[BonecoCombinedState]):
                 self._schedule_retry()
 
     def _schedule_watchdog(self):
-        if not self._stopped and self._watchdog_handle is None:
+        if self._persistent and not self._stopped and self._watchdog_handle is None:
             self._watchdog_handle = self.hass.loop.call_later(
                 WATCHDOG_INTERVAL, self._start_watchdog
             )
@@ -286,8 +305,8 @@ class BonecoDataUpdateCoordinator(DataUpdateCoordinator[BonecoCombinedState]):
             return
         if self._stopped:
             return
-        self._packets.pop("state", None)
-        self._last_packets.pop("state", None)
+        self._packets.pop(PACKET_STATE, None)
+        self._last_packets.pop(PACKET_STATE, None)
         self._discard_updates(updates)
         self.async_set_updated_data(
             dataclasses.replace(self.data, state=self._merge_pending(confirmed))

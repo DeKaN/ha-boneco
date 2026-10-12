@@ -1,5 +1,6 @@
 """Import the production sensor module; replace only HA entity base classes."""
 
+import asyncio
 import importlib
 import sys
 from dataclasses import dataclass
@@ -59,6 +60,7 @@ def sensor_module(integration, monkeypatch):
     for key, val in {
         "EntityCategory": SimpleNamespace(DIAGNOSTIC="diagnostic"),
         "UnitOfTemperature": SimpleNamespace(CELSIUS="°C"),
+        "UnitOfDensity": SimpleNamespace(MICROGRAMS_PER_CUBIC_METER="μg/m³"),
         "SIGNAL_STRENGTH_DECIBELS_MILLIWATT": "dBm",
     }.items():
         monkeypatch.setattr(const, key, val, raising=False)
@@ -121,3 +123,26 @@ def test_absent_particle_data_is_unknown_and_raw_zero_is_valid(
         packet[4:6] = raw.to_bytes(2, "little")
         co.data.info = cls(packet)
         assert sensor.native_value == expected
+
+
+def test_diagnostic_value_functions_follow_counters_even_when_offline(
+    sensor_module, integration
+):
+    co = coordinator(integration)
+    co.connections, co.notifications = 3, 7
+    entities = []
+    asyncio.run(
+        sensor_module.async_setup_entry(
+            None, SimpleNamespace(runtime_data=co), entities.extend
+        )
+    )
+    counters = [
+        entity
+        for entity in entities
+        if isinstance(entity, sensor_module.BonecoConnectionSensor)
+    ]
+    assert [entity.native_value for entity in counters] == [3, 7]
+    co.data = None
+    co.connections, co.notifications = 4, 12
+    assert all(entity.available for entity in counters)
+    assert [entity.native_value for entity in counters] == [4, 12]
