@@ -1,6 +1,8 @@
 {
     "config": {
         "abort": {
+            "invalid_auth": "Authentication failed: no device key was received.",
+            "not_supported": "This BONECO model is not supported.",
             "no_devices_found": "No devices found on the network"
         },
         "error": {

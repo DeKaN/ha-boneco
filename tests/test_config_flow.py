@@ -1,6 +1,8 @@
 """Pairing failures must not create invalid entries or leak discovered devices."""
 
 import asyncio
+import json
+from pathlib import Path
 from types import SimpleNamespace
 
 
@@ -29,3 +31,11 @@ def test_unsupported_model_aborts_instead_of_raising_key_error(integration):
         "type": "abort",
         "reason": "not_supported",
     }
+
+
+def test_new_pairing_abort_reasons_have_user_facing_messages(integration):
+    root = Path(integration["boneco"].flow.__file__).parent
+    for name in ("strings.json", "translations/en.json", "translations/ru.json"):
+        aborts = json.loads((root / name).read_text(encoding="utf-8"))["config"]["abort"]
+        assert aborts["invalid_auth"]
+        assert aborts["not_supported"]
