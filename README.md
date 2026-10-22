@@ -5,7 +5,13 @@
 [![hacs][hacsbadge]][hacs]
 
 Integration to control [Boneco](https://www.boneco.com) devices via bluetooth.  
-These devices require active connection for reading/writing data, so the integration connects every minute for reading data and then disconnects from your device. 
+Requires Home Assistant 2026.7 or later.
+
+By default, the integration connects every minute to read data and then disconnects, preserving availability for other controllers between operations. Commands use a fresh state read followed by a write and readback, then disconnect.
+
+In the device entry's configuration options, select **Connection mode** to opt into **Persistent connection**. This mode may provide more stable operation by avoiding repeated connections and authorization. It keeps a Bluetooth connection open, receives state and sensor notifications, reconnects and authorizes again after a disconnect, and checks connection health every five minutes. While connected, other devices or controllers, including a phone running the BONECO app, cannot connect to the same Boneco device. Each device can use a different mode; changing it reloads that device entry without pairing again.
+
+Devices with a particle sensor expose an air quality level from 1 to 5 and a separate raw reading. The existing `pm25` entity keeps its identifier, but no longer reports a mass concentration unit. Connection and notification counters are available for diagnosing interrupted updates.
 
 ## Supported models
 - H300/H300 CN
@@ -19,6 +25,8 @@ These devices require active connection for reading/writing data, so the integra
 - F235
 
 ## Known limitations
+Persistent mode reserves a Bluetooth connection slot per device and prevents another controller, including the official app, from connecting to that device. Use polling mode or disable the device entry to release its connection. If the adapter has too few slots for all devices that need active connections, add a supported Bluetooth adapter or an active Bluetooth proxy.
+
 At this moment some features are not supported:
 - timers
 Additional reading data from device is required after each write due to device logic (it can update several fields after changing something).

@@ -1,6 +1,6 @@
 [project]
 name = "ha-boneco"
-version = "0.1.0"
+version = "1.0.0"
 description = "A Home Assistant integration to control Boneco devices"
 readme = "README.md"
 authors = [
@@ -8,7 +8,7 @@ authors = [
 ]
 requires-python = ">=3.13"
 dependencies = [
-    "pyboneco==0.4.2",
+    "pyboneco==0.4.3",
 ]
 
 [project.urls]
@@ -19,4 +19,9 @@ dev = [
     "homeassistant-stubs>=2025.3.0",
     "pre-commit>=4.5.1",
     "ruff>=0.15.5",
+    "pytest>=9.0.0",
 ]
+
+[tool.uv.sources]
+# Use the reviewed library fix until pyboneco 0.4.3 is released.
+pyboneco = { git = "https://github.com/DeKaN/pyboneco.git", rev = "72842ed4b48d538034791b70a1c16d974cd9b65e" }

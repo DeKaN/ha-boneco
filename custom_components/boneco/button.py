@@ -2,7 +2,7 @@
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import (
     AddEntitiesCallback as AddConfigEntryEntitiesCallback,
@@ -90,8 +90,9 @@ class BonecoButton(BonecoEntity, ButtonEntity):
         await self.coordinator.update_state(
             lambda state: self.entity_description.set_value_fn(
                 state,
-                datetime.now() + self.entity_description.next_value_shift
+                datetime.now(timezone.utc) + self.entity_description.next_value_shift
                 if not state.has_service_operating_counter
                 else None,
-            )
+            ),
+            retry_safe=False,
         )

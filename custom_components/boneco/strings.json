@@ -26,13 +26,38 @@
       "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]"
     },
     "abort": {
+      "invalid_auth": "Authentication failed: no device key was received.",
+      "not_supported": "This BONECO model is not supported.",
       "no_devices_found": "[%key:common::config_flow::abort::no_devices_found%]",
       "already_in_progress": "[%key:common::config_flow::abort::already_in_progress%]",
       "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Connection mode",
+        "description": "Polling releases the Bluetooth connection after each read and write. Persistent mode may provide more stable operation, receives notifications, and reserves one adapter connection slot. Other devices or controllers, including the BONECO app, cannot connect to the same device while this connection is open. Changing the mode reloads only this device.",
+        "data": {
+          "connection_mode": "Connection mode"
+        }
+      }
+    }
+  },
+  "selector": {
+    "connection_mode": {
+      "options": {
+        "polling": "Periodic polling (default)",
+        "persistent": "Persistent connection"
+      }
+    }
+  },
   "entity": {
     "sensor": {
+      "air_quality_level": {"name": "Air quality (1-5)"},
+      "particle_raw": {"name": "Particle sensor raw reading"},
+      "connection_count": {"name": "Connection count"},
+      "notification_count": {"name": "Notification count"},
       "bluetooth_signal": {
         "name": "Bluetooth signal"
       },
